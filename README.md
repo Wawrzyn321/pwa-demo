@@ -1,4 +1,4 @@
-# PWA demo app
+# PWA demo app [link](https://pwa-demo.oto-jest-wawrzyn.pl/)
 
 Here's a tiny application I made while playing around with Progressive Web Apps and Service Workers.
 
