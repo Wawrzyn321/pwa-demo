@@ -17,10 +17,6 @@ app.post('/displays/:id', (req, res) => {
     res.send(addLikes(req.params.id, req.query.count))
 })
 
-app.listen(8097, () => {
-    console.log('Server listening @ port 8097')
-})
-
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {
     console.log("DEV server is listening on port " + PORT);
