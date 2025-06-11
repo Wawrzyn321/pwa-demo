@@ -17,6 +17,22 @@ async function refetchDisplays() {
     }
 }
 
+async function applyPendingLikes() {
+    try {
+        for (const [id, likesCount] of Object.entries(storage.getStorage())) {
+            await api.addLikes(id, likesCount);
+        }
+        storage.clearStorage();
+    } catch (e) {
+        if (isFetchFailed(e)) {
+            console.log('error while applying pending likes - we might be offline')
+        } else {
+            console.warn(e)
+            alert('could not apply pending likes')
+        }
+    }
+}
+
 function createDisplayElement(display) {
     const root = document.createElement('li');
 
@@ -42,14 +58,14 @@ function createDisplayElement(display) {
             await refetchDisplays();
             storage.clearPendingLikes();
         } catch (e) {
-            if (e.message === 'Failed to fetch') {
+            if (isFetchFailed(e)) {
                 storage.savePendingLikes(display.id);
                 addLikeButton.disabled = false;
 
                 addLikeButton.textContent = `Add like (${pendingLikes + 1} pending)`;
                 return;
             }
-            console.log(e)
+            console.warn(e)
             alert('cannot update display')
         }
     })
@@ -64,21 +80,14 @@ function setDisplayImage(src) {
 }
 
 async function main() {
-    try {
-        for (const [id, likesCount] of Object.entries(storage.getStorage())) {
-            await api.addLikes(id, likesCount);
-        }
-        storage.clearStorage();
-    } catch (e) {
-        if (e.message === 'Failed to fetch') {
-            console.log('offline, thats ok')
-        } else {
-            console.log(e)
-            alert('could not')
-        }
-    }
+    await applyPendingLikes();
     await refetchDisplays();
 }
 
+// real-world usecase would use `navigator.onLine` - here we're running
+// our server locally, so it's easier to just disable/enable the Node process 
+function isFetchFailed(e) {
+    return e.message === 'Failed to fetch';
+}
 
 main();

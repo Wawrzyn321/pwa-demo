@@ -25,21 +25,28 @@ self.addEventListener("install", event => {
 
 self.addEventListener("fetch", event => {
     if (event.request.url.endsWith('.jpg')) {
-        const { request } = event
-        event.respondWith(
-            caches.match(request).then(response => response ?? fetch(request))
-                .then(response => {
-                    if (response.ok) {
-                        const clonedResponse = response.clone()
-                        caches.open('images').then(cache => cache.put(request, clonedResponse))
-                    }
-                    return response
-                })
-                .catch(console.warn)
-        )
-        return;
+        handleImageCache(event);
+    } else {
+        handleDocumentsCache(event)
     }
+});
 
+function handleImageCache(event) {
+    event.respondWith(
+        caches.match(event.request).then(response => response ?? fetch(event.request))
+            .then(response => {
+                if (response.ok) {
+                    const clonedResponse = response.clone()
+                    caches.open('images')
+                        .then(cache => cache.put(event.request, clonedResponse))
+                }
+                return response
+            })
+            .catch(console.warn)
+    )
+}
+
+function handleDocumentsCache(event) {
     event.respondWith(
         caches.match(event.request)
             .then(async cachedResponse => {
@@ -48,10 +55,12 @@ self.addEventListener("fetch", event => {
                     return await fetch(event.request);
                 } catch {
                     // that's ok, we might be in offline mode
-                    return cachedResponse;
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
                 }
             }
             )
             .catch(console.warn)
     )
-});
+}
