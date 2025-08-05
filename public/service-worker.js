@@ -24,7 +24,7 @@ self.addEventListener("install", event => {
 
 
 self.addEventListener("fetch", event => {
-    if (event.request.url.endsWith('.jpg')) {
+    if (event.request.destination === 'image') {
         handleImageCache(event);
     } else {
         handleDocumentsCache(event)

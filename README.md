@@ -59,7 +59,7 @@ Sadly, as of now we cannot use wildcards, like `"*.js"` or `img/*`.
 
 Then we have the `install` event handler. It registers the list of assets to cache, which downloads them and prewarms the cache. You can see the list of assets in your browser's devtools "Application"/"Storage"/"Cache storage".
 
-Last but not least - the `fetch` event handler, where network calls are intercepted. We have separate handling for image requests (`*.jpg` for simplicity) and everything else.
+Last but not least - the `fetch` event handler, where network calls are intercepted. We have separate handling for image requests and everything else.
 
 Since the images cache is not prewarmed, we add the image into the cache the moment it's fetched, and then serve data from cache. You can observe images being added in your devtools.
 
