@@ -2,6 +2,9 @@
 
 Here's a tiny application I made while playing around with Progressive Web Apps and Service Workers.
 
+> [!NOTE]  
+> See the same setup, but with [Workbox](https://developer.chrome.com/docs/workbox) on [workbox branch](https://github.com/Wawrzyn321/pwa-demo/tree/workbox).
+
 ## The idea 💡
 
 Let's explore the PWA topic by creating an application that is available even if there's no internet connection. We'll have a backend with a fake database of computer displays and a PWA-enabled frontend that shows the displays, "likes" for each of them and images.
