@@ -1,4 +1,4 @@
-# PWA demo app [link](https://pwa-demo.oto-jest-wawrzyn.pl/)
+# PWA demo app (Workbox branch) [link](https://pwa-demo.oto-jest-wawrzyn.pl/)
 
 Here's a tiny application I made while playing around with Progressive Web Apps and Service Workers.
 
@@ -66,3 +66,22 @@ Since the images cache is not prewarmed, we add the image into the cache the mom
 For other types of resources, we first try to get the data with a regular `fetch` function. If that fails (with no regard to the reason why), we get the data from cache.
     * This is an online-first strategy - we first fetch, then get data from cache. Albeit slower (we always make a request), we will never get stale data if the server is available.
     * Another strategy would be to first try the cache and `fetch` if it fails - faster, but prone to showing stale data, even if fresh is available. This one is used for images.
+
+## Workbox
+
+Workbox makes all this configuration and good practices stuff easier - see the [service-worker.js](public/service-worker.js).
+
+As before, we defined cacheable source files - and we add them to cache in one-liner, `precacheAndRoute`. Note the versioning!
+
+`registerRoute` is batteries-included caching config for specific routes - see the first argument, where we filter the requests, depending on their type or path. We also define our cache strategy and expiration here - since we have only 4 images, I've set `maxEntries` to 3.
+
+### Logs
+
+Source:
+![source caching logs](./assets/source.png)
+
+Images:
+![images caching logs](./assets/images.png)
+
+Api:
+![api caching logs](./assets/api.png)

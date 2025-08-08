@@ -1,66 +1,43 @@
+// no bundling, just import the script
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
+
+const VERSION = 'v1';
+
 const urlsToCache = [
-    // page
     "/",
-    "script.js",
-    "api.js",
-    "storage.js",
-    "style.css",
-    "handle-service-worker.js",
-    "service-worker.js",
-    // api
-    "displays",
+    "/script.js",
+    "/api.js",
+    "/storage.js",
+    "/style.css",
+    "/handle-service-worker.js",
+    "/service-worker.js",
 ];
 
-self.addEventListener("install", event => {
-    console.log("Service worker installed.");
-    event.waitUntil(
-        caches.open("assets")
-            .then(cache => {
-                console.log('Caches open, register asset urls.')
-                return cache.addAll(urlsToCache);
-            }).catch(console.warn)
+// disabling logging
+// self.__WB_DISABLE_DEV_LOGS = true;
+
+if (workbox) {
+    console.log('Workbox is loaded!');
+
+    workbox.routing.registerRoute(
+        ({ request }) => request.destination === 'image',
+        new workbox.strategies.CacheFirst({
+            cacheName: 'images-cache',
+            plugins: [
+                new workbox.expiration.ExpirationPlugin({
+                    maxEntries: 3,
+                })
+            ]
+        }),
     );
-});
 
+    workbox.routing.registerRoute(
+        ({ url }) => url.pathname === '/displays',
+        new workbox.strategies.NetworkFirst({ cacheName: 'api-cache' })
+    );
 
-self.addEventListener("fetch", event => {
-    if (event.request.destination === 'image') {
-        handleImageCache(event);
-    } else {
-        handleDocumentsCache(event)
-    }
-});
+    workbox.precaching.precacheAndRoute(urlsToCache.map(url => ({ url, revision: VERSION })));
 
-function handleImageCache(event) {
-    event.respondWith(
-        caches.match(event.request).then(response => response ?? fetch(event.request))
-            .then(response => {
-                if (response.ok) {
-                    const clonedResponse = response.clone()
-                    caches.open('images')
-                        .then(cache => cache.put(event.request, clonedResponse))
-                }
-                return response
-            })
-            .catch(console.warn)
-    )
-}
-
-function handleDocumentsCache(event) {
-    event.respondWith(
-        caches.match(event.request)
-            .then(async cachedResponse => {
-                try {
-                    // fetch first here
-                    return await fetch(event.request);
-                } catch {
-                    // that's ok, we might be in offline mode
-                    if (cachedResponse) {
-                        return cachedResponse;
-                    }
-                }
-            }
-            )
-            .catch(console.warn)
-    )
+} else {
+    console.error('Workbox failed to load!');
 }
